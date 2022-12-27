@@ -1,17 +1,63 @@
 <template>
     <div id="task">
-        <form>
-            <input type="text" placeholder="Tarefa de hoje"/>
+        <form @submit.prevent="addItem">
+            <input type="text" placeholder="Tarefa de hoje" v-model="tarefa"/>
             <button type="submit">Adicionar</button>
         </form>
+        <Item :lista="tarefas" :delete="deleteTask"/>
     </div>
 </template>
 
 
 <script>
-
+import Item from './Item'
 export default {
-    name: 'App'
+    name: 'Task-',
+    components:{
+        Item
+    },
+    data(){
+        return{
+            tarefa: '',
+            tarefas: [],
+        }
+    },
+    methods:{
+        addItem(){
+            if(this.tarefa !== ''){
+                this.tarefas.push({
+                    text: this.tarefa,
+                    key: Date.now(),
+                });
+            }else{
+                alert('Digite alguma tarefa..');
+                return;
+            }
+
+            this.tarefa = '';
+        },
+        deleteTask(key){
+            let filtro = this.tarefas.filter((item) => {
+                return (item.key !== key);
+            });
+
+            this.tarefas = filtro;
+        },
+        watch:{
+            tarefas:{
+                deep: true,
+                handler(){
+                localStorage.setItem('tasks', JSON.stringify(this.tarefas));
+
+            }
+            }
+        },
+        created() {
+            const minhaLista = localStorage.getItem('tasks');
+            this.tarefas = JSON.parse(minhaLista) || [];
+        }
+            
+    }
 }
 </script>
 
